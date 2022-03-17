@@ -51,7 +51,14 @@ estados p = error "Sin implementar."
 --3. vars. Función que obtiene la lista de todas las variables de una
 --			proposición.
 vars :: Prop -> [String]
-vars p = error "Sin implementar."
+vars PTrue = ["True"]
+vars PFalse = ["False"]
+vars (PVar a) = [a]
+vars (PNeg a) = vars a
+vars (PAnd a b) = vars a ++ vars b
+vars (POr a b ) = vars a ++ vars b
+vars (PImpl a b) = vars(a) ++ vars(b)
+vars (PEquiv a b) = vars(a) ++ vars(b)
 
 --4. subconj. Función que devuelve el conjunto potencia de una lista.
 subconj :: [a] -> [[a]]
@@ -98,8 +105,18 @@ elimImpl p = error "Sin implementar."
 
 --14. deMorgan. Función que aplica las leyes de DeMorgan a una proposición.
 deMorgan :: Prop -> Prop
-deMorgan p = error "Sin implementar."
-
+deMorgan PTrue = PTrue
+deMorgan PFalse = PFalse
+deMorgan (PVar a)= PVar a
+deMorgan (PNeg(PAnd a b))=POr (PNeg a) (PNeg b)
+deMorgan (PNeg(POr a b))= PAnd (PNeg a) (PNeg b)
+deMorgan (PNeg a)= PNeg(deMorgan(a))
+deMorgan (PAnd (PNeg a) (PNeg b))=PNeg(POr a b)
+deMorgan (POr (PNeg a) (PNeg b))= PNeg(PAnd a b)
+deMorgan (PAnd (PNeg a) (PNeg b))= PNeg(POr a b)
+deMorgan (POr a b)= POr (deMorgan a) (deMorgan b)
+deMorgan (PImpl a b)= PImpl (deMorgan a) (deMorgan b)
+deMorgan (PEquiv a b)=PEquiv (deMorgan a) (deMorgan b)
 
 
 
