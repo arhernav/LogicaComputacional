@@ -14,19 +14,34 @@ type Estado = [String]
 
 --Instancia Show para Prop.
 instance Show Prop where
-  show PTrue = error "Sin implementar" 
-  show PFalse = error "Sin implementar"
-  show (PVar x) = error "Sin implementar" 
-  show (PNeg p) = error "Sin implementar" 
-  show (POr p1 p2) = error "Sin implementar"
-  show (PAnd p1 p2) = error "Sin implementar"
-  show (PImpl p1 p2) = error "Sin implementar"
-  show (PEquiv p1 p2) = error "Sin implementar"
+  show PTrue = "T" 
+  show PFalse = "F"
+  show (PVar x) = x 
+  show (PNeg p) = "¬"++show(p) 
+  show (POr p1 p2) = "("++show(p1)++" ∨ "++show(p2)++")"
+  show (PAnd p1 p2) = "("++show(p1)++" ∧ "++show(p2)++")"
+  show (PImpl p1 p2) = show(p1)++"→"++show(p2)
+  show (PEquiv p1 p2) = show(p1)++"↔"++show(p2)
 
 
 --1. interp. Función que evalua una proposición dado el estado.
 interp :: Estado -> Prop -> Bool
-interp e p = error "Sin implementar."
+interp (xs) PTrue  = True
+interp (xs) PFalse  = False
+interp [] (PVar a) = False
+interp (x:xs) (PVar a) = if a==x then True else interp (xs) (PVar a)
+interp (x:xs) (PNeg a) = if (interp (x:xs) a == True) then False else True
+interp (x:xs) (PAnd a b) = if ((interp (x:xs) a ) == True)
+               && ((interp (x:xs) b )==True) then True else False
+interp (x:xs) (POr a b) = if ((interp (x:xs) a ) == False)
+               && ((interp (x:xs) b ) == False) then False else True
+interp (x:xs) (PImpl a b) = if ((interp (x:xs) a ) == True)
+               && ((interp (x:xs) b )== False) then False else True
+interp (x:xs) (PEquiv a b) = if ((interp (x:xs) a ) == True)
+               && ((interp (x:xs) b ) == True)
+               || ((interp (x:xs) a ) == False)
+               && ((interp (x:xs) b ) == False)then True else False
+
 
 --2. estados. Función que devuelve una lista de todas las combinaciones
 -- 				posibles de los estados de una proposición.
@@ -84,6 +99,8 @@ elimImpl p = error "Sin implementar."
 --14. deMorgan. Función que aplica las leyes de DeMorgan a una proposición.
 deMorgan :: Prop -> Prop
 deMorgan p = error "Sin implementar."
+
+
 
 
 {-- Punto extra. Funciones que implementan la satisfacibilidad sobre conjuntos.
