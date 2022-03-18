@@ -6,7 +6,7 @@
 module Practica2 where
 
 --Prop. Tipo de datos para proposiciones lógicas.
-data Prop = PTrue | PFalse | PVar String | PNeg Prop | POr Prop Prop 
+data Prop = PTrue | PFalse | PVar String | PNeg Prop | POr Prop Prop
                   | PAnd Prop Prop | PImpl Prop Prop | PEquiv Prop Prop
 
 --Estado. Lista de variables asignadas como verdaderas.
@@ -14,33 +14,31 @@ type Estado = [String]
 
 --Instancia Show para Prop.
 instance Show Prop where
-  show PTrue = "T" 
+  show PTrue = "T"
   show PFalse = "F"
-  show (PVar x) = x 
-  show (PNeg p) = "¬"++show(p) 
+  show (PVar x) = x
+  show (PNeg p) = "¬"++show(p)
   show (POr p1 p2) = "("++show(p1)++" ∨ "++show(p2)++")"
   show (PAnd p1 p2) = "("++show(p1)++" ∧ "++show(p2)++")"
   show (PImpl p1 p2) = show(p1)++"→"++show(p2)
   show (PEquiv p1 p2) = show(p1)++"↔"++show(p2)
 
 
+-- Funcion auxiliar que se usará en todas partes. Regresa el valor de la variable proposicional dada en el estado dado.
+value :: Estado -> String -> Bool
+value [] p = False
+value (x:xs) p = if x==p then True else value xs p
+
 --1. interp. Función que evalua una proposición dado el estado.
 interp :: Estado -> Prop -> Bool
-interp (xs) PTrue  = True
-interp (xs) PFalse  = False
-interp [] (PVar a) = False
-interp (x:xs) (PVar a) = if a==x then True else interp (xs) (PVar a)
-interp (x:xs) (PNeg a) = if (interp (x:xs) a == True) then False else True
-interp (x:xs) (PAnd a b) = if ((interp (x:xs) a ) == True)
-               && ((interp (x:xs) b )==True) then True else False
-interp (x:xs) (POr a b) = if ((interp (x:xs) a ) == False)
-               && ((interp (x:xs) b ) == False) then False else True
-interp (x:xs) (PImpl a b) = if ((interp (x:xs) a ) == True)
-               && ((interp (x:xs) b )== False) then False else True
-interp (x:xs) (PEquiv a b) = if ((interp (x:xs) a ) == True)
-               && ((interp (x:xs) b ) == True)
-               || ((interp (x:xs) a ) == False)
-               && ((interp (x:xs) b ) == False)then True else False
+interp i PTrue  = True
+interp i PFalse  = False
+interp i (PVar a) = value i a
+interp i (PNeg a) = not (interp i a)
+interp i (PAnd a b) = (interp i a) && (interp i b)
+interp i (POr a b) = (interp i a) || (interp i b)
+interp i (PImpl a b) = (not (interp i a)) || (interp i b)
+interp i (PEquiv a b) = interp i a == interp i b
 
 
 --2. estados. Función que devuelve una lista de todas las combinaciones
