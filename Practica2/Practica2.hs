@@ -44,7 +44,9 @@ interp i (PEquiv a b) = interp i a == interp i b
 --2. estados. Función que devuelve una lista de todas las combinaciones
 -- 				posibles de los estados de una proposición.
 estados :: Prop -> [Estado]
-estados p = error "Sin implementar."
+--Nótese que debido a que el estado de una variable está definido como la pertenencia a un conjunto,
+--todos los estados posibles de una proposición son el conjunto potencia. 
+estados p = subconj (vars p)
 
 --3. vars. Función que obtiene la lista de todas las variables de una
 --			proposición.
@@ -60,7 +62,13 @@ vars (PEquiv a b) = vars a ++ vars b
 
 --4. subconj. Función que devuelve el conjunto potencia de una lista.
 subconj :: [a] -> [[a]]
-subconj l = error "Sin implementar."
+subconj [] = [[]]
+subconj (x:xs) = let subc = subconj xs in (combine x subc)++subc
+
+--Funcion auxiliar que concatena el elemento dado a cada lista de la lista de las listas.
+combine :: a -> [[a]] -> [[a]]
+combine e [] = []
+combine e (x:xs) = [e:x] ++ combine e xs
 
 --5. modelos. Función que devuelve la lista de todos los modelos posibles
 -- 				para una proposición.
