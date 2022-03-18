@@ -29,6 +29,13 @@ value :: Estado -> String -> Bool
 value [] p = False
 value (x:xs) p = if x==p then True else value xs p
 
+--  Funcion auxiliar que elimina los elementos duplicados de una lista
+rmdups :: Eq a => [a] -> [a]
+rmdups [] = []
+rmdups (x:xs)   | x `elem` xs   = rmdups xs
+                | otherwise     = x : rmdups xs
+
+
 --1. interp. Función que evalua una proposición dado el estado.
 interp :: Estado -> Prop -> Bool
 interp i PTrue  = True
@@ -55,10 +62,10 @@ vars PTrue = []
 vars PFalse = []
 vars (PVar a) = [a]
 vars (PNeg a) = vars a
-vars (PAnd a b) = vars a ++ vars b
-vars (POr a b ) = vars a ++ vars b
-vars (PImpl a b) = vars a ++ vars b
-vars (PEquiv a b) = vars a ++ vars b
+vars (PAnd a b) = rmdups(vars a ++ vars b)
+vars (POr a b ) = rmdups(vars a ++ vars b)
+vars (PImpl a b) = rmdups(vars a ++ vars b)
+vars (PEquiv a b) = rmdups(vars a ++ vars b)
 
 --4. subconj. Función que devuelve el conjunto potencia de una lista.
 subconj :: [a] -> [[a]]
