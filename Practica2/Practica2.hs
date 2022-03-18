@@ -29,6 +29,13 @@ value :: Estado -> String -> Bool
 value [] p = False
 value (x:xs) p = if x==p then True else value xs p
 
+--  Funcion auxiliar que elimina los elementos duplicados de una lista
+rmdups :: Eq a => [a] -> [a]
+rmdups [] = []
+rmdups (x:xs)   | x `elem` xs   = rmdups xs
+                | otherwise     = x : rmdups xs
+
+
 --1. interp. Función que evalua una proposición dado el estado.
 interp :: Estado -> Prop -> Bool
 interp i PTrue  = True
@@ -55,10 +62,10 @@ vars PTrue = []
 vars PFalse = []
 vars (PVar a) = [a]
 vars (PNeg a) = vars a
-vars (PAnd a b) = vars a ++ vars b
-vars (POr a b ) = vars a ++ vars b
-vars (PImpl a b) = vars a ++ vars b
-vars (PEquiv a b) = vars a ++ vars b
+vars (PAnd a b) = rmdups(vars a ++ vars b)
+vars (POr a b ) = rmdups(vars a ++ vars b)
+vars (PImpl a b) = rmdups(vars a ++ vars b)
+vars (PEquiv a b) = rmdups(vars a ++ vars b)
 
 --4. subconj. Función que devuelve el conjunto potencia de una lista.
 subconj :: [a] -> [[a]]
@@ -115,11 +122,25 @@ equiv p1 p2 = (filterFalse (estados p1) p1) == (filterFalse (estados p2) p2)
 
 --12. elimEquiv. Función que elimina las equivalencias lógicas.
 elimEquiv :: Prop -> Prop
-elimEquiv p = error "Sin implementar."
+elimEquiv PTrue = PTrue
+elimEquiv PFalse = PFalse
+elimEquiv (PVar x) = (PVar x)
+elimEquiv (PNeg p) = PNeg (elimEquiv p)
+elimEquiv (POr a b) = POr (elimEquiv a) (elimEquiv b)
+elimEquiv (PAnd a b) = PAnd (elimEquiv a) (elimEquiv b)
+elimEquiv (PImpl a b) = PImpl (elimEquiv a) (elimEquiv b)
+elimEquiv (PEquiv a b) = PAnd (PImpl (elimEquiv a) (elimEquiv b)) (PImpl (elimEquiv b) (elimEquiv a))
 
 --13. elimImpl. Función que elimina las implicaciones lógicas.
 elimImpl :: Prop -> Prop
-elimImpl p = error "Sin implementar."
+elimImpl PTrue = PTrue
+elimImpl PFalse = PFalse
+elimImpl (PVar x) = (PVar x)
+elimImpl (PNeg p) = PNeg (elimImpl p)
+elimImpl (POr a b) = POr (elimImpl a) (elimImpl b)
+elimImpl (PAnd a b) = PAnd (elimImpl a) (elimImpl b)
+elimImpl (PImpl a b) = POr (PNeg (elimImpl a)) (elimImpl b)
+elimImpl (PEquiv a b) = PEquiv (elimImpl a) (elimImpl b)
 
 --14. deMorgan. Función que aplica las leyes de DeMorgan a una proposición.
 deMorgan :: Prop -> Prop
