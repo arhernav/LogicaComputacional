@@ -24,7 +24,7 @@ instance Show Prop where
   show (PEquiv p1 p2) = show(p1)++"↔"++show(p2)
 
 
--- Funcion auxiliar que se usará en todas partes. Regresa el valor de la variable proposicional dada en el estado dado.
+-- Funcion auxiliar que regresa el valor de la variable proposicional dada en el estado dado.
 value :: Estado -> String -> Bool
 value [] p = False
 value (x:xs) p = if x==p then True else value xs p
@@ -45,7 +45,7 @@ interp i (PEquiv a b) = interp i a == interp i b
 -- 				posibles de los estados de una proposición.
 estados :: Prop -> [Estado]
 --Nótese que debido a que el estado de una variable está definido como la pertenencia a un conjunto,
---todos los estados posibles de una proposición son el conjunto potencia. 
+--todos los estados posibles de una proposición son el conjunto potencia.
 estados p = subconj (vars p)
 
 --3. vars. Función que obtiene la lista de todas las variables de una
@@ -70,36 +70,48 @@ combine :: a -> [[a]] -> [[a]]
 combine e [] = []
 combine e (x:xs) = [e:x] ++ combine e xs
 
+--Estas dos funciones auxiliares filtran la lista de estados dada en la proposición dada.
+
+--De la lista de estados dada regresa los estados verdaderos
+filterTrue :: [Estado] -> Prop -> [Estado]
+filterTrue [] p = []
+filterTrue (x:xs) p = if interp x p then x:(filterTrue xs p) else filterTrue xs p
+
+--De la lista de estados dada regresa los estados falsos
+filterFalse :: [Estado] -> Prop -> [Estado]
+filterFalse [] p = []
+filterFalse (x:xs) p = if interp x p then filterFalse xs p else x:(filterFalse xs p)
+
 --5. modelos. Función que devuelve la lista de todos los modelos posibles
 -- 				para una proposición.
 modelos :: Prop -> [Estado]
-modelos p = error "Sin implementar."
+modelos p = filterTrue (estados p) p
 
 --6. tautologia. Función que dice si una proposición es tautología.
 tautologia :: Prop -> Bool
-tautologia p = error "Sin implementar."
+tautologia p = (filterFalse (estados p) p) == []
 
 --7. satisfen. Función que resuelve si una proposición es satisfacible
 -- 				con cierto estado.
 satisfen :: Estado -> Prop -> Bool
-satisfen e p = error "Sin implementar."
+satisfen e p = interp e p
 
 --8. satisf. Función que resuelve si una proposición es satisfacible.
 satisf :: Prop -> Bool
-satisf p = error "Sin implementar."
+satisf p = (filterTrue (estados p) p) /= []
 
 --9. insatisfen. Función que resuelve si una proposición es insatisfacible
 -- 					con cierto estado.
 insatisfen :: Estado -> Prop -> Bool
-insatisfen e p = error "Sin implementar."
+insatisfen e p = (filterFalse (estados p) p) /= []
 
 --10. contrad. Función que dice si una proposición es una contradicción.
 contrad :: Prop -> Bool
-contrad p = error "Sin implementar."
+contrad p = (filterFalse (estados p) p) == (estados p)
 
 --11. equiv. Función que devuelve True si dos proposiciones son equivalentes.
 equiv :: Prop -> Prop -> Bool
-equiv p1 p2 = error "Sin implementar."
+equiv p1 p2 = (filterFalse (estados p1) p1) == (filterFalse (estados p2) p2)
 
 --12. elimEquiv. Función que elimina las equivalencias lógicas.
 elimEquiv :: Prop -> Prop
@@ -119,7 +131,6 @@ deMorgan (PNeg(POr a b))= PAnd (PNeg a) (PNeg b)
 deMorgan (PNeg a)= PNeg(deMorgan(a))
 deMorgan (PAnd (PNeg a) (PNeg b))=PNeg(POr a b)
 deMorgan (POr (PNeg a) (PNeg b))= PNeg(PAnd a b)
-deMorgan (PAnd (PNeg a) (PNeg b))= PNeg(POr a b)
 deMorgan (POr a b)= POr (deMorgan a) (deMorgan b)
 deMorgan (PImpl a b)= PImpl (deMorgan a) (deMorgan b)
 deMorgan (PEquiv a b)=PEquiv (deMorgan a) (deMorgan b)
