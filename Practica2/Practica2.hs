@@ -49,14 +49,14 @@ estados p = error "Sin implementar."
 --3. vars. Función que obtiene la lista de todas las variables de una
 --			proposición.
 vars :: Prop -> [String]
-vars PTrue = ["True"]
-vars PFalse = ["False"]
+vars PTrue = []
+vars PFalse = []
 vars (PVar a) = [a]
 vars (PNeg a) = vars a
 vars (PAnd a b) = vars a ++ vars b
 vars (POr a b ) = vars a ++ vars b
-vars (PImpl a b) = vars(a) ++ vars(b)
-vars (PEquiv a b) = vars(a) ++ vars(b)
+vars (PImpl a b) = vars a ++ vars b
+vars (PEquiv a b) = vars a ++ vars b
 
 --4. subconj. Función que devuelve el conjunto potencia de una lista.
 subconj :: [a] -> [[a]]
