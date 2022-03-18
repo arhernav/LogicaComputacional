@@ -115,11 +115,25 @@ equiv p1 p2 = (filterFalse (estados p1) p1) == (filterFalse (estados p2) p2)
 
 --12. elimEquiv. Función que elimina las equivalencias lógicas.
 elimEquiv :: Prop -> Prop
-elimEquiv p = error "Sin implementar."
+elimEquiv PTrue = PTrue
+elimEquiv PFalse = PFalse
+elimEquiv (PVar x) = (PVar x)
+elimEquiv (PNeg p) = PNeg (elimEquiv p)
+elimEquiv (POr a b) = POr (elimEquiv a) (elimEquiv b)
+elimEquiv (PAnd a b) = PAnd (elimEquiv a) (elimEquiv b)
+elimEquiv (PImpl a b) = PImpl (elimEquiv a) (elimEquiv b)
+elimEquiv (PEquiv a b) = PAnd (PImpl (elimEquiv a) (elimEquiv b)) (PImpl (elimEquiv b) (elimEquiv a))
 
 --13. elimImpl. Función que elimina las implicaciones lógicas.
 elimImpl :: Prop -> Prop
-elimImpl p = error "Sin implementar."
+elimImpl PTrue = PTrue
+elimImpl PFalse = PFalse
+elimImpl (PVar x) = (PVar x)
+elimImpl (PNeg p) = PNeg (elimImpl p)
+elimImpl (POr a b) = POr (elimImpl a) (elimImpl b)
+elimImpl (PAnd a b) = PAnd (elimImpl a) (elimImpl b)
+elimImpl (PImpl a b) = POr (PNeg (elimImpl a)) (elimImpl b)
+elimImpl (PEquiv a b) = PEquiv (elimImpl a) (elimImpl b)
 
 --14. deMorgan. Función que aplica las leyes de DeMorgan a una proposición.
 deMorgan :: Prop -> Prop
