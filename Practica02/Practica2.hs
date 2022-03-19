@@ -1,6 +1,6 @@
 {--
---
---
+-- Hernández Navarro Armando 317340347
+-- Juan Carlos Zenteno Pompa 316251608
 --}
 
 module Practica2 where
@@ -29,7 +29,7 @@ value :: Estado -> String -> Bool
 value [] p = False
 value (x:xs) p = if x==p then True else value xs p
 
---  Funcion auxiliar que elimina los elementos duplicados de una lista
+--  Funcion auxiliar que elimina los elementos duplicados de una lista. Esta utiliza la funcion elem, que devuelve true si una lista contiene un elemento igual al argumento dado
 rmdups :: Eq a => [a] -> [a]
 rmdups [] = []
 rmdups (x:xs)   | x `elem` xs   = rmdups xs
