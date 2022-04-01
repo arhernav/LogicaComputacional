@@ -13,17 +13,22 @@ import Practica2
 -- 1. fnn. Función que devuelve la Forma Normal Negativa de una 
 --         proposición.
 fnn :: Prop -> Prop
+-- Casos base
 fnn PTrue = PTrue
 fnn PFalse = PFalse
 fnn (PVar a) = PVar a
-fnn (PNeg a) = PNeg (fnn a)
+-- Procesamiento de las negaciones
 fnn (PNeg (PNeg p1)) = (fnn p1)
-fnn (POr p1 p2) = POr (fnn p1) (fnn p2)
-fnn (PAnd p1 p2) = PAnd (fnn p1) (fnn p2)
-fnn (PImpl p1 p2) = (POr (PNeg (fnn p1)) (fnn p2))
 fnn (PNeg (POr p1 p2)) = (PAnd (PNeg (fnn p1)) (PNeg (fnn p2)))
 fnn (PNeg (PAnd p1 p2)) = (POr (PNeg (fnn p1)) (PNeg (fnn p2)))
+-- Propagación de la función. 
+fnn (POr p1 p2) = POr (fnn p1) (fnn p2)
+fnn (PAnd p1 p2) = PAnd (fnn p1) (fnn p2)
+--Eliminación de implicaciones y equivalencias.
+fnn (PImpl p1 p2) = fnn (POr (PNeg (fnn p1)) (fnn p2))
+fnn (PNeg (PImpl p1 p2)) = fnn (PNeg (POr (PNeg (fnn p1)) (fnn p2)))
 fnn (PEquiv p1 p2) = fnn (POr (PAnd p1 p2) (PAnd (PNeg p1) (PNeg p2)))
+fnn (PNeg (PEquiv p1 p2)) = fnn (PNeg (POr (PAnd p1 p2) (PAnd (PNeg p1) (PNeg p2))))
 
 
 
