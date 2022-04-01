@@ -1,6 +1,6 @@
 {--
---
---
+-- Juan Carlos Zenteno Pompa 316251608
+-- Hernández Navarro Armando 317340347
 --}
 module Practica3 where
 
@@ -13,12 +13,29 @@ import Practica2
 -- 1. fnn. Función que devuelve la Forma Normal Negativa de una 
 --         proposición.
 fnn :: Prop -> Prop
-fnn p = error "Sin implementar."
+fnn PTrue = PTrue
+fnn PFalse = PFalse
+fnn (PVar a) = PVar a
+fnn (PNeg a) = PNeg (fnn a)
+fnn (PNeg (PNeg p1)) = (fnn p1)
+fnn (POr p1 p2) = POr (fnn p1) (fnn p2)
+fnn (PAnd p1 p2) = PAnd (fnn p1) (fnn p2)
+fnn (PImpl p1 p2) = (POr (PNeg (fnn p1)) (fnn p2))
+fnn (PNeg (POr p1 p2)) = (PAnd (PNeg (fnn p1)) (PNeg (fnn p2)))
+fnn (PNeg (PAnd p1 p2)) = (POr (PNeg (fnn p1)) (PNeg (fnn p2)))
+fnn (PEquiv p1 p2) = fnn (POr (PAnd p1 p2) (PAnd (PNeg p1) (PNeg p2)))
+
+
+
+
 
 -- 2. fnc. Función que devuelve la Forma Normal Conjuntiva de una 
 --         proposición.
 fnc :: Prop -> Prop
 fnc p = error "Sin implementar."
+
+
+
 
 
 
