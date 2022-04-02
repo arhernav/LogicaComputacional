@@ -95,11 +95,69 @@ type Solucion = (Modelo, Formula)
 -- 3. unit. Función que aplica la regla unitaria.
 unit :: Solucion -> Solucion
 unit (m, []) = error "Formula vacía. No se puede proceder."
-unit (m, x:xs) = let y:ys = x in  (y:m, xs)
+unit (m, f) = let l = getliterals f in if (null (l)) then ([], f) else ((head l):m, removelf (head l) f)
+
+--unit (m, x:xs) = let y:ys = x in  (y:m, xs)
+--------------------------------------------Auxiliares de unit-------------------------------------------------------------------------------------------
+-- Regresa las literales que tenga la formula.
+getliterals :: Formula -> [Literal]
+getliterals [] = []
+getliterals (x:xs) = let l:ls = x in if (null ls) then l:(getliterals xs) else getliterals xs
+
+--Remueve la literal dada de la formula
+removelf :: Literal -> Formula -> Formula
+removelf l [] = []
+removelf l (x:xs) = let c = removelc l x in if (null c) then removelf l xs else c:(removelf l xs) 
+
+--Remueve la literal dada de la clausula
+removelc :: Literal -> Clausula -> Clausula
+removelc l [] = []
+removelc l (x:xs) = if (equals l x) then removelc l xs else x:(removelc l xs)
+
+-- Regresa si las dos proposiciones dadas son iguales.
+equals :: Prop -> Prop -> Bool
+-- Casos Base
+equals PTrue PTrue = True
+equals PFalse PFalse = True
+equals (PVar p) (PVar q) = p == q
+-- Propagación de la igualdad
+equals (PNeg p) (PNeg q) = equals p q
+equals (POr p1 q1) (POr p2 q2) = (equals p1 p2)&&(equals q1 q2)
+equals (PAnd p1 q1) (PAnd p2 q2) = (equals p1 p2)&&(equals q1 q2)
+equals (PImpl p1 q1) (PImpl p2 q2) = (equals p1 p2)&&(equals q1 q2)
+equals (PEquiv p1 q1) (PEquiv p2 q2) = (equals p1 p2)&&(equals q1 q2)
+-- Todo lo que no cumpla con lo anterior se considerará falso.
+equals p q = False
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
 -- 4. elim. Función que aplica la regla de eliminación.
 elim :: Solucion -> Solucion
-elim (m, f) = error "Sin implementar."
+elim (m, []) = error "Formula vacía. No se puede proceder."
+elim (m, f) = (m, removemf m f)
+--------------------------------------------Auxiliares de elim-------------------------------------------------------------------------------------------
+---Remueve las clausulas que tengan una literal dentro del modelo dado en la formula dada.
+removemf :: Modelo -> Formula -> Formula
+removemf m [] = []
+removemf [] f = f
+removemf (l:ls) f = let f2 = removecl l f in removemf ls f2
+        
+--remueve la clausula que contenga a la literal dada en la formula dada
+removecl :: Literal -> Formula -> Formula
+removecl l [] = []
+removecl l (c:cs) = if (containscl l c) then removecl l cs else c:(removecl l cs)
+                        
+--Regresa si la clausula contiene a esta literal
+containscl :: Literal -> Clausula -> Bool
+-- Caso Base
+containscl l [] = False
+-- Carnita del asunto
+containscl l (c:cs) = if (equals l c) then True else containscl l cs
+ 
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 -- 5. red. Función que aplica la regla de reducción.
 red :: Solucion -> Solucion
