@@ -97,7 +97,7 @@ unit :: Solucion -> Solucion
 unit (m, []) = error "Formula vacía. No se puede proceder."
 unit (m, f) = let l = getliterals f in if (null (l)) then ([], f) else ((head l):m, removelf (head l) f)
 --------------------------------------------Auxiliares de unit-------------------------------------------------------------------------------------------
--- Regresa las literales que tenga la formula.
+-- Regresa las literales solitas que tenga la formula.
 getliterals :: Formula -> [Literal]
 getliterals [] = []
 getliterals (x:xs) = let l:ls = x in if (null ls) then l:(getliterals xs) else getliterals xs
@@ -126,6 +126,8 @@ equals (PImpl p1 q1) (PImpl p2 q2) = (equals p1 p2)&&(equals q1 q2)
 equals (PEquiv p1 q1) (PEquiv p2 q2) = (equals p1 p2)&&(equals q1 q2)
 -- Todo lo que no cumpla con lo anterior se considerará falso.
 equals p q = False
+
+--Se usan tantas funciones auxiliares para eliminar la literal de la formula, sin importar su ubicación en esta
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -181,16 +183,26 @@ getliteral (c:cs) = if (null c) then getliteral cs else head c
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- 7. conflict. Función que determina si la Solucion llegó a una contradicción.
 conflict :: Solucion -> Bool
-conflict (m, f) = error "Sin implementar."
-
+conflict ([], f) = False
+conflict (m, []) = False
+conflict (l:ls, f) = if (contains (getliterals f) (fnn (PNeg l))) then True else False
+--------------------------------------------Auxiliares de conflict-------------------------------------------------------------------------------------------
+-- Regresa si la lista de literales contiene a la literal dada
+contains :: [Literal] -> Literal -> Bool
+contains [] l = False
+contains (l:ls) l1 = if (equals l l1) then True else contains ls l1
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- 8. success. Función que determina si la fórmula es satisfacible.
 success :: Solucion -> Bool
 success (m, f) = error "Sin implementar."
+--------------------------------------------Auxiliares de split-------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --9. appDPLL. Función que aplica las reglas anteriores una vez.
 appDPLL :: Solucion -> Solucion
 appDPLL (m, f) = error "Sin implementar."
-
+--------------------------------------------Auxiliares de split-------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 {-- Puntos Extra --}
