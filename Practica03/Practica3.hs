@@ -94,7 +94,8 @@ type Solucion = (Modelo, Formula)
 
 -- 3. unit. Función que aplica la regla unitaria.
 unit :: Solucion -> Solucion
-unit (m, f) = error "Sin implementar."
+unit (m, []) = error "Formula vacía. No se puede proceder."
+unit (m, x:xs) = let y:ys = x in  (y:m, xs)
 
 -- 4. elim. Función que aplica la regla de eliminación.
 elim :: Solucion -> Solucion
