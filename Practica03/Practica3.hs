@@ -194,9 +194,8 @@ contains (l:ls) l1 = if (equals l l1) then True else contains ls l1
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- 8. success. Función que determina si la fórmula es satisfacible.
 success :: Solucion -> Bool
-success (m, f) = error "Sin implementar."
---------------------------------------------Auxiliares de split-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------
+success (m, []) = True
+success (m, f) = False
 
 --9. appDPLL. Función que aplica las reglas anteriores una vez.
 appDPLL :: Solucion -> Solucion
