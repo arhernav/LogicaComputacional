@@ -161,8 +161,16 @@ containscl l (c:cs) = if (equals l c) then True else containscl l cs
 
 -- 5. red. Función que aplica la regla de reducción.
 red :: Solucion -> Solucion
-red (m, f) = error "Sin implementar."
+red (m, f) = (m, removecontrarias m f)
+--------------------------------------------Auxiliares de red-------------------------------------------------------------------------------------------
+--Remueve las literales contrarias a cada literal en el modelo.
+removecontrarias :: Modelo -> Formula -> Formula
+removecontrarias m [] = []
+removecontrarias [] f = f 
+removecontrarias (l:ls) f = let contraria = fnn (PNeg l); f2 = removelf contraria f in removecontrarias ls f2
+-- removelf está definido en las auxiliares de unit
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- 6. split. Función que aplica la regla de la partición de una literal.
 --            Se debe tomar la primer literal que aparezca en la fórmula.
 split :: Solucion -> [Solucion]
