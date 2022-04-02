@@ -154,7 +154,6 @@ containscl :: Literal -> Clausula -> Bool
 containscl l [] = False
 -- Carnita del asunto
 containscl l (c:cs) = if (equals l c) then True else containscl l cs
- 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -171,6 +170,7 @@ removecontrarias (l:ls) f = let contraria = fnn (PNeg l); f2 = removelf contrari
 -- removelf está definido en las auxiliares de unit
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 -- 6. split. Función que aplica la regla de la partición de una literal.
 --            Se debe tomar la primer literal que aparezca en la fórmula.
 split :: Solucion -> [Solucion]
@@ -181,6 +181,7 @@ getliteral :: Formula -> Literal
 getliteral [] = error "No se puede sacar una literal de una formula sin literales."
 getliteral (c:cs) = if (null c) then getliteral cs else head c
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 -- 7. conflict. Función que determina si la Solucion llegó a una contradicción.
 conflict :: Solucion -> Bool
 conflict ([], f) = False
@@ -192,6 +193,7 @@ contains :: [Literal] -> Literal -> Bool
 contains [] l = False
 contains (l:ls) l1 = if (equals l l1) then True else contains ls l1
 ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 -- 8. success. Función que determina si la fórmula es satisfacible.
 success :: Solucion -> Bool
 success (m, []) = True
@@ -199,10 +201,8 @@ success (m, f) = False
 
 --9. appDPLL. Función que aplica las reglas anteriores una vez.
 appDPLL :: Solucion -> Solucion
-appDPLL (m, f) = error "Sin implementar."
---------------------------------------------Auxiliares de split-------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+appDPLL s = let (m, f) = s in if (null m) then let (m1, f1) = unit s in if (null m1) then s else (m1, f1)  else red (elim (red s)) 
+-- Por cosas como esta Haskell me parece un lenguaje tan feo como pegarle a un padre
 
 {-- Puntos Extra --}
 
