@@ -96,8 +96,6 @@ type Solucion = (Modelo, Formula)
 unit :: Solucion -> Solucion
 unit (m, []) = error "Formula vacía. No se puede proceder."
 unit (m, f) = let l = getliterals f in if (null (l)) then ([], f) else ((head l):m, removelf (head l) f)
-
---unit (m, x:xs) = let y:ys = x in  (y:m, xs)
 --------------------------------------------Auxiliares de unit-------------------------------------------------------------------------------------------
 -- Regresa las literales que tenga la formula.
 getliterals :: Formula -> [Literal]
@@ -174,8 +172,13 @@ removecontrarias (l:ls) f = let contraria = fnn (PNeg l); f2 = removelf contrari
 -- 6. split. Función que aplica la regla de la partición de una literal.
 --            Se debe tomar la primer literal que aparezca en la fórmula.
 split :: Solucion -> [Solucion]
-split (m, f) = error "Sin implementar."
-
+split (m, f) = let l = getliteral f in [(l:m, f),((PNeg l):m, f)]
+--------------------------------------------Auxiliares de split-------------------------------------------------------------------------------------------
+-- Regresa la primera literal que se encuentre en la formula.
+getliteral :: Formula -> Literal
+getliteral [] = error "No se puede sacar una literal de una formula sin literales."
+getliteral (c:cs) = if (null c) then getliteral cs else head c
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- 7. conflict. Función que determina si la Solucion llegó a una contradicción.
 conflict :: Solucion -> Bool
 conflict (m, f) = error "Sin implementar."
