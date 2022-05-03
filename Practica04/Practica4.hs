@@ -78,61 +78,39 @@ varCuantificador f = error "No es un cuantificador."
 elimReps :: [Nombre] -> [Nombre]
 elimReps l = let sorted = sort l in compress sorted
 
--- Tipo de dato que representa un conjunto de variables.
-type VSet = [Nombre]
-
--- Operación de añadir al conjunto. No permite que hayan dos elementos repetidos.
-addVSet :: VSet -> Nombre -> VSet 
-addVSet [] x = [x]
-addVSet (x:xs) y = if x==y then x:xs else x:(addVSet xs y)
-
---Operación de unión de conjuntos. No permite elementos repetidos.
-unionVSet :: VSet -> VSet -> VSet
-unionVSet [] s = s
-unionVSet s [] = s
-unionVSet s (x:xs) = let set = addVSet s x in unionVSet set xs
-
---fv. Función que devuelve las variables libres de una fórmula.
---fv :: Form -> [Nombre]
--- Lo que hacemos es sacar todas las variables de la lista, luego, la ordenamos. Una vez ordenada 
--- todas las variables repetidas están juntas, por lo que si comprimimos la lista via la función
--- compress, terminamos con una lista sin elementos repetidos, que es funcionalmente idéntica a 
--- un conjunto. Así que, teniendo dos VSets, aplicamos la operación que elimina los elementos de 
--- el primero en el segundo, siendo el primero el conjunto de las variables ligadas. y así, 
--- tenemos nuestra solución. Nota: si x aparece como no ligada y ligada a la vez, esta función no la incluirá.
---fv f = let vars = allVars f; vars_sorted = sort vars; vars_set compress vars_sorted; ligadas = bv f in removeVSet ligadas vars_set
-
--- Regresa todas las instancias de cada variable en la fórmula.
-allVars :: Form -> [Nombre]
--- casos base
-allVars NForm = []
-allVars TrueF = []
-allVars FalseF = []
-allVars (Pr _ t) = termVars (F "" t) -- Hacer esto me permite reutilizar el código para contar las variables en un término.
-allVars (Eq t1 t2) = (termVars t1)++(termVars t2)
-allVars (Neg p) = allVars p
-allVars (Conj p q) = (allVars p)++(allVars q)
-allVars (Disy p q) = (allVars p)++(allVars q)
-allVars (Imp p q) = (allVars p)++(allVars q)
-allVars (Equi p q) = (allVars p)++(allVars q)
-allVars (All x p) = allVars p
-allVars (Ex x p) = allVars p
-
 -- Remueve elementos sucesivos que son iguales. por ejemplo removeSuccesive [a,a] = [a]
 compress :: [Nombre] -> [Nombre]
 compress [] = []
 compress (x:xs) = x:(popEqual x xs)
+
 
 --Función auxiliar para compress.
 popEqual :: Nombre -> [Nombre] -> [Nombre]
 popEqual s [] = []
 popEqual s (x:xs) = if s==x then popEqual s xs else x:(popEqual x xs)
 
--- regresa las variables del término dado.
-termVars :: Term -> [Nombre]
-termVars (V x) = [x]
-termVars (F _ []) = []
-termVars (F _ (x:xs)) = unionVSet (termVars x) (termVars (F "" xs))
+
+--fv. Función que devuelve las variables libres de una fórmula.
+fv :: Form -> [Nombre]
+fv f = let vars = fvAux f [] in elimReps vars
+
+-- Hace la mayoría del trabajo. Pero, por desgracia, las variables salen repetidas.
+fvAux :: Form -> [Nombre] -> [Nombre]
+fvAux NForm  l = []
+fvAux TrueF  l = []
+fvAux FalseF l = []
+fvAux (Pr _ terms)  l = let vars = termVars (F "" terms) in removeVSet l vars --Al reescribirlo como función, podemos reutilizar la función para contar las variables de un predicado.
+fvAux (Eq t1 t2) l = let (v1, v2) = (termVars t1, termVars t2) in v1 ++ v2
+fvAux (Neg p) l = fvAux p l
+fvAux (Conj p q)  l = (fvAux p l)++(fvAux q l)
+fvAux (Disy p q) l = (fvAux p l)++(fvAux q l)
+fvAux (Imp p q) l = (fvAux p l)++(fvAux q l)
+fvAux (Equi p q) l = (fvAux p l)++(fvAux q l)
+fvAux (All x p) l = fvAux p (x:l)
+fvAux (Ex x p) l = fvAux p (x:l)
+
+-- Tipo de dato que representa un conjunto de variables.
+type VSet = [Nombre]
 
 -- regresa si el conjunto dado contiene a la variable dada
 vSetHas :: VSet -> Nombre -> Bool
@@ -148,6 +126,12 @@ removeVSet e (x:xs) = if (vSetHas e x) then removeVSet e xs else x:(removeVSet e
 --sustTerm. Función que realiza la sustitución de variables en un término.
 sustTerm :: Term -> Subst -> Term
 sustTerm t s = error "Sin implementar."
+
+-- regresa las variables del término dado.
+termVars :: Term -> VSet
+termVars (V x) = [x]
+termVars (F _ []) = []
+termVars (F _ (x:xs)) =  (termVars x) ++ (termVars (F "" xs))
 
 --sustForm. Función que realiza la sustitución de variables en una 
 --          fórmula sin renombramientos.
