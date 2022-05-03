@@ -61,21 +61,22 @@ alcance (Ex x p) = [(Ex x NForm, p)]++(alcance p)
 
 --bv. Función que devuelve las variables ligadas de una fórmula.
 bv :: Form -> [Nombre]
--- casos base
-bv NForm  = []
-bv TrueF  = []
-bv FalseF = []
-bv (Pr p vars) = []
-bv (Eq x y) = [] 
--- casos recursivos
-bv (Neg p) = bv p
-bv (Conj p q) = unionVSet (bv p) (bv q)
-bv (Disy p q) = unionVSet (bv p) (bv q)
-bv (Imp  p q) = unionVSet (bv p) (bv q)
-bv (Equi p q) = unionVSet (bv p) (bv q)
---Acá está la carnita del asunto
-bv (All x p) = addVSet (bv p) x
-bv (Ex  x p) = addVSet (bv p) x
+bv f = let alcances = alcance f in elimReps (ligadas alcances)
+           
+-- Función auxiliar que regresa las variables ligadas de los alcances dados.
+ligadas :: [(Form, Form)] -> [Nombre]
+ligadas [] = []
+ligadas (x:xs) = let (cuant, _) = x in (varCuantificador cuant):(ligadas xs)
+  
+-- Dado un cuantificador, regresa la variable que cuantifica.
+varCuantificador :: Form -> Nombre
+varCuantificador (All x _) = x
+varCuantificador (Ex  x _) = x
+varCuantificador f = error "No es un cuantificador."
+
+-- Dada una lista de nombres, regresa la lista sin elementos repetidos.
+elimReps :: [Nombre] -> [Nombre]
+elimReps l = let sorted = sort l in compress sorted
 
 -- Tipo de dato que representa un conjunto de variables.
 type VSet = [Nombre]
@@ -92,14 +93,14 @@ unionVSet s [] = s
 unionVSet s (x:xs) = let set = addVSet s x in unionVSet set xs
 
 --fv. Función que devuelve las variables libres de una fórmula.
-fv :: Form -> [Nombre]
+--fv :: Form -> [Nombre]
 -- Lo que hacemos es sacar todas las variables de la lista, luego, la ordenamos. Una vez ordenada 
 -- todas las variables repetidas están juntas, por lo que si comprimimos la lista via la función
 -- compress, terminamos con una lista sin elementos repetidos, que es funcionalmente idéntica a 
 -- un conjunto. Así que, teniendo dos VSets, aplicamos la operación que elimina los elementos de 
 -- el primero en el segundo, siendo el primero el conjunto de las variables ligadas. y así, 
 -- tenemos nuestra solución. Nota: si x aparece como no ligada y ligada a la vez, esta función no la incluirá.
-fv f = let vars = allVars f; vars_sorted = sort vars; vars_set compress vars_sorted; ligadas = bv f in removeVSet ligadas vars_set
+--fv f = let vars = allVars f; vars_sorted = sort vars; vars_set compress vars_sorted; ligadas = bv f in removeVSet ligadas vars_set
 
 -- Regresa todas las instancias de cada variable en la fórmula.
 allVars :: Form -> [Nombre]
