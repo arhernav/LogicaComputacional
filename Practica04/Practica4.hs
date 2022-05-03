@@ -3,6 +3,8 @@
 --}
 module Practica4 where
 
+import Data.List --Unicamente se usa la función sort.
+
 --Definición del tipo de datos para términos.
 data Term = V Nombre | F Nombre [Term]
 
@@ -59,11 +61,88 @@ alcance (Ex x p) = [(Ex x NForm, p)]++(alcance p)
 
 --bv. Función que devuelve las variables ligadas de una fórmula.
 bv :: Form -> [Nombre]
-bv f = error "Sin implementar."
+-- casos base
+bv NForm  = []
+bv TrueF  = []
+bv FalseF = []
+bv (Pr p vars) = []
+bv (Eq x y) = [] 
+-- casos recursivos
+bv (Neg p) = bv p
+bv (Conj p q) = unionVSet (bv p) (bv q)
+bv (Disy p q) = unionVSet (bv p) (bv q)
+bv (Imp  p q) = unionVSet (bv p) (bv q)
+bv (Equi p q) = unionVSet (bv p) (bv q)
+--Acá está la carnita del asunto
+bv (All x p) = addVSet (bv p) x
+bv (Ex  x p) = addVSet (bv p) x
+
+-- Tipo de dato que representa un conjunto de variables.
+type VSet = [Nombre]
+
+-- Operación de añadir al conjunto. No permite que hayan dos elementos repetidos.
+addVSet :: VSet -> Nombre -> VSet 
+addVSet [] x = [x]
+addVSet (x:xs) y = if x==y then x:xs else x:(addVSet xs y)
+
+--Operación de unión de conjuntos. No permite elementos repetidos.
+unionVSet :: VSet -> VSet -> VSet
+unionVSet [] s = s
+unionVSet s [] = s
+unionVSet s (x:xs) = let set = addVSet s x in unionVSet set xs
 
 --fv. Función que devuelve las variables libres de una fórmula.
 fv :: Form -> [Nombre]
-fv f = error "Sin implementar."
+-- Lo que hacemos es sacar todas las variables de la lista, luego, la ordenamos. Una vez ordenada 
+-- todas las variables repetidas están juntas, por lo que si comprimimos la lista via la función
+-- compress, terminamos con una lista sin elementos repetidos, que es funcionalmente idéntica a 
+-- un conjunto. Así que, teniendo dos VSets, aplicamos la operación que elimina los elementos de 
+-- el primero en el segundo, siendo el primero el conjunto de las variables ligadas. y así, 
+-- tenemos nuestra solución. Nota: si x aparece como no ligada y ligada a la vez, esta función no la incluirá.
+fv f = let vars = allVars f; vars_sorted = sort vars; vars_set compress vars_sorted; ligadas = bv f in removeVSet ligadas vars_set
+
+-- Regresa todas las instancias de cada variable en la fórmula.
+allVars :: Form -> [Nombre]
+-- casos base
+allVars NForm = []
+allVars TrueF = []
+allVars FalseF = []
+allVars (Pr _ t) = termVars (F "" t) -- Hacer esto me permite reutilizar el código para contar las variables en un término.
+allVars (Eq t1 t2) = (termVars t1)++(termVars t2)
+allVars (Neg p) = allVars p
+allVars (Conj p q) = (allVars p)++(allVars q)
+allVars (Disy p q) = (allVars p)++(allVars q)
+allVars (Imp p q) = (allVars p)++(allVars q)
+allVars (Equi p q) = (allVars p)++(allVars q)
+allVars (All x p) = allVars p
+allVars (Ex x p) = allVars p
+
+-- Remueve elementos sucesivos que son iguales. por ejemplo removeSuccesive [a,a] = [a]
+compress :: [Nombre] -> [Nombre]
+compress [] = []
+compress (x:xs) = x:(popEqual x xs)
+
+--Función auxiliar para compress.
+popEqual :: Nombre -> [Nombre] -> [Nombre]
+popEqual s [] = []
+popEqual s (x:xs) = if s==x then popEqual s xs else x:(popEqual x xs)
+
+-- regresa las variables del término dado.
+termVars :: Term -> [Nombre]
+termVars (V x) = [x]
+termVars (F _ []) = []
+termVars (F _ (x:xs)) = unionVSet (termVars x) (termVars (F "" xs))
+
+-- regresa si el conjunto dado contiene a la variable dada
+vSetHas :: VSet -> Nombre -> Bool
+vSetHas [] x = False
+vSetHas (x:xs) y = if x==y then True else vSetHas xs y
+
+-- remueve los elementos de el primer conjunto de el segundo.
+removeVSet :: VSet -> VSet -> VSet
+removeVSet [] s = s
+removeVSet e [] = []
+removeVSet e (x:xs) = if (vSetHas e x) then removeVSet e xs else x:(removeVSet e xs) 
 
 --sustTerm. Función que realiza la sustitución de variables en un término.
 sustTerm :: Term -> Subst -> Term
