@@ -42,7 +42,20 @@ instance Show Form where
 --alcance. Función que devuelve el alcance de los cuantificadores de
 --          una fórmula.
 alcance :: Form -> [(Form, Form)]
-alcance f = error "Sin implementar."
+-- casos base
+alcance NForm = []
+alcance TrueF = []
+alcance FalseF = []
+alcance (Pr _ _) = []
+alcance (Eq _ _) = []
+--casos recursivos
+alcance (Neg p) = alcance p
+alcance (Conj p q) = (alcance p)++(alcance q)
+alcance (Disy p q) = (alcance p)++(alcance q)
+alcance (Imp p q) = (alcance p)++(alcance q)
+alcance (Equi p q) = (alcance p)++(alcance q)
+alcance (All x p) = [(All x NForm, p)]++(alcance p)
+alcance (Ex x p) = [(Ex x NForm, p)]++(alcance p)
 
 --bv. Función que devuelve las variables ligadas de una fórmula.
 bv :: Form -> [Nombre]
