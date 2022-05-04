@@ -24,6 +24,11 @@ instance Show Term where
   show (V x) = x
   show (F f t) = f ++ "(" ++ show t ++ ")"
 
+instance Eq Term where
+  (==) (V n) (V m) = n==m
+  (==) (F f t1) (F g t2) = (f == g) && (t1==t2)
+  (==) _ _ = False
+  
 --Instancia Show para Form.
 instance Show Form where
   show NForm = ""
@@ -38,7 +43,20 @@ instance Show Form where
   show (Equi f1 f2) = "(" ++ show f1 ++ " <--> " ++ show f2 ++ ")"
   show (All x f) = "Alle " ++ x ++ " (" ++ show f ++ ")" 
   show (Ex x f) = "Ein " ++ x ++ " (" ++ show f ++ ")"
-
+  
+instance Eq Form where
+  (==) NForm NForm = True
+  (==) TrueF TrueF = True
+  (==) FalseF FalseF = True
+  (==) (Pr p1 t1) (Pr p2 t2) = (p1 == p2) && (t1==t2)
+  (==) (Eq t1 t2) (Eq t3 t4) = (t1==t3) && (t2==t4)
+  (==) (Neg p) (Neg q) = p==q
+  (==) (Conj f1 f2) (Conj f3 f4) = (f1 == f3) && (f2 == f4)
+  (==) (Disy f1 f2) (Disy f3 f4) = (f1 == f3) && (f2 == f4)
+  (==) (Imp  f1 f2) (Imp  f3 f4) = (f1 == f3) && (f2 == f4)
+  (==) (Equi f1 f2) (Equi f3 f4) = (f1 == f3) && (f2 == f4)
+  (==) (All x p) (All y q) = (x==y) && (p==q)
+  (==) (Ex  x p) (Ex  y q) = (x==y) && (p==q)
 
 
 --alcance. Función que devuelve el alcance de los cuantificadores de
@@ -153,7 +171,22 @@ sustForm (Ex x  p) s = let (V y) = sustTerm (V x) s in Ex  y (sustForm p s)
 
 --alphaEq. Función que dice si dos fórmulas son alpha-equivalentes.
 alphaEq :: Form -> Form -> Bool
-alphaEq f1 f2 = error "Sin implementar."
+alphaEq NForm NForm = True
+alphaEq TrueF TrueF = True
+alphaEq FalseF FalseF = True
+alphaEq (Pr p1 t1) (Pr p2 t2) = (p1 == p2) && (t1==t2)
+alphaEq (Eq t1 t2) (Eq t3 t4) = (t1==t3) && (t2==t4)
+alphaEq (Neg p) (Neg q) = alphaEq p q
+alphaEq (Conj f1 f2) (Conj f3 f4) = (alphaEq f1 f3) && (alphaEq f2 f4)
+alphaEq (Disy f1 f2) (Disy f3 f4) = (alphaEq f1 f3) && (alphaEq f2 f4)
+alphaEq (Imp  f1 f2) (Imp  f3 f4) = (alphaEq f1 f3) && (alphaEq f2 f4)
+alphaEq (Equi f1 f2) (Equi f3 f4) = (alphaEq f1 f3) && (alphaEq f2 f4)
+-- Aquí está la carnita del asunto
+-- La solución implementada fue usar sustituciones para intentar igualar ambas fórmulas
+-- Si no se puede, no son alfa equivalentes.
+alphaEq (All x p) (All y q) = let sust = [(y, (V x))]; r = sustForm q sust in alphaEq p r
+alphaEq (Ex  x p) (Ex  y q) = let sust = [(y, (V x))]; r = sustForm q sust in alphaEq p r
+alphaEq _ _ = False
 
 {-- Puntos Extra
 renom :: Form -> Form
