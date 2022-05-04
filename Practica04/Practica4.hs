@@ -1,5 +1,6 @@
 {--
---
+-- Juan Carlos Zenteno Pompa 316251608
+-- Hernández Navarro Armando 317340347
 --}
 module Practica4 where
 
@@ -149,7 +150,14 @@ termVars (F _ (x:xs)) =  (termVars x) ++ (termVars (F "" xs))
 
 --sustTerm. Función que realiza la sustitución de variables en un término.
 sustTerm :: Term -> Subst -> Term
-sustTerm t s = error "Sin implementar."
+sustTerm (V n) ((no, t):xs) = if (n == no) then t else sustTerm (V n) xs
+sustTerm (F nom l) s = (F nom (aux (l) (s)))
+
+--aux
+aux :: [Term] -> Subst -> [Term]
+aux [] s = []
+aux (x:xs) s = [sustTerm (x) (s)] ++ aux (xs) (s)
+
 
 
 --sustForm. Función que realiza la sustitución de variables en una 
