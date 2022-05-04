@@ -123,20 +123,33 @@ removeVSet [] s = s
 removeVSet e [] = []
 removeVSet e (x:xs) = if (vSetHas e x) then removeVSet e xs else x:(removeVSet e xs) 
 
---sustTerm. Función que realiza la sustitución de variables en un término.
-sustTerm :: Term -> Subst -> Term
-sustTerm t s = error "Sin implementar."
-
 -- regresa las variables del término dado.
 termVars :: Term -> VSet
 termVars (V x) = [x]
 termVars (F _ []) = []
 termVars (F _ (x:xs)) =  (termVars x) ++ (termVars (F "" xs))
 
+--sustTerm. Función que realiza la sustitución de variables en un término.
+sustTerm :: Term -> Subst -> Term
+sustTerm t s = error "Sin implementar."
+
+
 --sustForm. Función que realiza la sustitución de variables en una 
 --          fórmula sin renombramientos.
 sustForm :: Form -> Subst -> Form
-sustForm f s = error "Sin implementar."
+sustForm NForm _ = NForm 
+sustForm TrueF _ = TrueF
+sustForm FalseF _ = FalseF
+sustForm (Pr p t) s = Pr p (map (\term -> sustTerm term s) t )
+sustForm (Eq t1 t2) s = Eq (sustTerm t1 s) (sustTerm t2 s)
+sustForm (Neg p) s = sustForm p s
+sustForm (Conj p q) s = Conj (sustForm p s) (sustForm q s)
+sustForm (Disy p q) s = Disy (sustForm p s) (sustForm q s)
+sustForm (Imp  p q) s = Imp  (sustForm p s) (sustForm q s)
+sustForm (Equi p q) s = Equi (sustForm p s) (sustForm q s)
+--
+sustForm (All x p) s = let (V y) = sustTerm (V x) s in All y (sustForm p s)
+sustForm (Ex x  p) s = let (V y) = sustTerm (V x) s in Ex  y (sustForm p s)
 
 --alphaEq. Función que dice si dos fórmulas son alpha-equivalentes.
 alphaEq :: Form -> Form -> Bool
