@@ -152,13 +152,7 @@ termVars (F _ (x:xs)) =  (termVars x) ++ (termVars (F "" xs))
 sustTerm :: Term -> Subst -> Term
 sustTerm (V n) [] = (V n)
 sustTerm (V n) ((no, t):xs) = if (n == no) then t else sustTerm (V n) xs
-sustTerm (F nom l) s = (F nom (aux (l) (s)))
-
---aux
-aux :: [Term] -> Subst -> [Term]
-aux [] s = []
-aux (x:xs) s = [sustTerm (x) (s)] ++ aux (xs) (s)
-
+sustTerm (F nom l) s = (F nom (map (\x -> sustTerm (x) (s)) (l)))
 
 
 --sustForm. Función que realiza la sustitución de variables en una 
