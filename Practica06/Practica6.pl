@@ -26,3 +26,10 @@
     binary(x, 01111000).
     binary(y, 01111001).
     binary(z, 01111010).
+
+binaryValue(A, Z):-
+    binary(A, Z); binary(Z, A).
+
+
+procList([X|Y], L):-
+    maplist(binaryValue, [X|Y], L).
