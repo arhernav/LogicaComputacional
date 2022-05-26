@@ -1,4 +1,4 @@
-%Ejercicio 1
+%-----------------------------------------------------Ejercicio 1-------------------------------------------------------
 %Convertidor de ascii a binario implementando una base de datos
     binary(a, 01100001).
     binary(b, 01100010).
@@ -33,3 +33,21 @@ binaryValue(A, Z):-
 
 procList([X|Y], L):-
     maplist(binaryValue, [X|Y], L).
+%---------------------------------------------------Ejercicio 2-------------------------------------------------------------
+
+%---------------------------------------------------Ejercicio 3-------------------------------------------------------------
+aceptar(S) :- afn(q0, S).
+
+afn(q1, []).
+afn(q2, []).
+afn(Qi, [X|XS]) :- transicion(Qi, X, Qs), afn(Qs, XS).
+
+transicion(q0, "b", q1).
+transicion(q0, "b", q2).
+transicion(q0, "b", q3).
+transicion(q1, "a", q1).
+transicion(q1, "b", q1).
+transicion(q2, "a", q1).
+transicion(q3, "b", q0).
+
+%---------------------------------------------------Ejercicio 4-------------------------------------------------------------
