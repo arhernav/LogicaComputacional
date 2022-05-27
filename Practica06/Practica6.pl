@@ -35,6 +35,30 @@ procList([X|Y], L):-
     maplist(binaryValue, [X|Y], L).
 %---------------------------------------------------Ejercicio 2-------------------------------------------------------------
 
+esCubo(gris).
+esCubo(rojo).
+esCubo(azul).
+esCubo(verde).
+esCubo(amarillo).
+esCubo(rosa).
+
+debajo(rojo, gris).
+debajo(azul, rojo).
+debajo(rosa, amarillo).
+
+
+sobre(X,Y):-
+    debajo(Y, X).
+
+hastaArriba(X):-
+    \+ debajo(X, _).
+
+%bloqueado(X)
+
+%hastaAbajo(X) Devuelve el cubo que se encuentra hasta abajos de una pila de  cubos
+
+%mover(X, Y) Permite mover X sobre Y si este ultimo esta encima (Alterna la posicion de los cubos)
+
 %---------------------------------------------------Ejercicio 3-------------------------------------------------------------
 aceptar(S) :- afn(q0, S).
 
