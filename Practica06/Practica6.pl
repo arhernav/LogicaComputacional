@@ -58,7 +58,7 @@ hastaArriba(X):-
 bloqueado(X):-
     debajo(X, _).
 
-%hastaAbajo(X):-
+%hastaAbajo(X) Devuelve el cubo que esta hasta abajo de la pila
 
 
 mover(X, Y):-
