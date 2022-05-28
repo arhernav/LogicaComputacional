@@ -43,6 +43,7 @@ esCubo(verde).
 esCubo(amarillo).
 esCubo(rosa).
 
+:- dynamic debajo/2.
 debajo(rojo, gris).
 debajo(azul, rojo).
 debajo(rosa, amarillo).
@@ -57,9 +58,11 @@ hastaArriba(X):-
 bloqueado(X):-
     debajo(X, _).
 
-%hastaAbajo(X) Devuelve el cubo que se encuentra hasta abajos de una pila de  cubos
+%hastaAbajo(X):-
 
-%mover(X, Y) Permite mover X sobre Y si este ultimo esta encima (Alterna la posicion de los cubos)
+
+mover(X, Y):-
+    debajo(X,Y), retract(debajo(X,Y)), assertz(debajo(Y,X)).
 
 %---------------------------------------------------Ejercicio 3-------------------------------------------------------------
 aceptar(S) :- afn(q0, S).
