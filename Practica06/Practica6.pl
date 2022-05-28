@@ -48,6 +48,8 @@ debajo(rojo, gris).
 debajo(azul, rojo).
 debajo(rosa, amarillo).
 
+esBot(X):-
+    \+ debajo(_, X).
 
 sobre(X,Y):-
     debajo(Y, X).
@@ -58,7 +60,9 @@ hastaArriba(X):-
 bloqueado(X):-
     debajo(X, _).
 
-%hastaAbajo(X) Devuelve el cubo que esta hasta abajo de la pila
+
+hastaAbajo(X):-
+    (esBot(X) -> print(X));(debajo(Y, X) -> hastaAbajo(Y)).
 
 
 mover(X, Y):-
