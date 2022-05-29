@@ -84,3 +84,20 @@ transicion(q2, "a", q1).
 transicion(q3, "b", q0).
 
 %---------------------------------------------------Ejercicio 4-------------------------------------------------------------
+mezclar([], [], []).
+mezclar(L1, [], L1).
+mezclar([], L2, L2).
+mezclar([X|L1], [Y|L2], [X|LMerge]) :- (X @=< Y), mezclar(L1, [Y|L2], LMerge), !.
+mezclar([X|L1], [Y|L2], [Y|LMerge]) :- (Y @=< X), mezclar([X|L1], L2, LMerge), !.
+
+%Esta es una implementación de MergeSort.
+ordenar([], []).
+ordenar([X], [X]).
+ordenar(L, S) :- 
+    divorcio(L, P, M), ordenar(P, Po), 
+    ordenar(M, Mo), mezclar(Po, Mo, S), !.
+
+%Desde mi primer segundo semestre, siempre he llamado divorcio a la función de separación en mis implementaciones de MergeSort.
+divorcio([], [], []).
+divorcio([X], [X], []).
+divorcio([X, Y|XYS], [X|XS], [Y|YS]) :- divorcio(XYS, XS, YS).
