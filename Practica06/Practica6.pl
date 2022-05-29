@@ -34,6 +34,9 @@ binaryValue(A, Z):-
 procList([X|Y], Solucion):-
     maplist(binaryValue, [X|Y], Solucion).
 
+ejercicio1([X|Y]):-
+    procList([X|Y], Solucion), print(Solucion).
+
 %---------------------------------------------------Ejercicio 2-------------------------------------------------------------
 
 esCubo(gris).
@@ -93,8 +96,8 @@ mezclar([X|L1], [Y|L2], [Y|LMerge]) :- (Y @=< X), mezclar([X|L1], L2, LMerge), !
 %Esta es una implementación de MergeSort.
 ordenar([], []).
 ordenar([X], [X]).
-ordenar(L, S) :- 
-    divorcio(L, P, M), ordenar(P, Po), 
+ordenar(L, S) :-
+    divorcio(L, P, M), ordenar(P, Po),
     ordenar(M, Mo), mezclar(Po, Mo, S), !.
 
 %Desde mi primer segundo semestre, siempre he llamado divorcio a la función de separación en mis implementaciones de MergeSort.
